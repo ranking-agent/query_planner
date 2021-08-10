@@ -40,6 +40,7 @@ which can be done with `QueryPlan.get_prevs(x)`
 Example:
 Consider a TRAPI query that looks like:
 ![Query](Query.png)
+
 where the grey nodes are bound.  A test case for this query is found in `tests.test_plans.test_readme`.
 
 `generate_plans` returns two independent plans.  One simply queries the AB edge.  Because both A and B are bound, 
@@ -56,5 +57,5 @@ When this chunk is completed, the query planner identifies the bound linear path
 from the two sides, until node F is reached, which is another blocking join.  This ends up pruning nodes D, F, and G to
 only include results that match the C-I constraint.
 
-Subsequently the E-loop is queried and joined, followed by the dangling H node.
+Subsequently the E-loop is queried and joined, providing further constraints on e.g. node G.  This is then followed by the dangling H node.
 
