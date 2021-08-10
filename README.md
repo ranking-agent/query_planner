@@ -3,7 +3,7 @@ A quick-and-dirty library to create query plans for TRAPI queries.
 
 query_planner is meant to be used as a library.  It consumes TRAPI queries, and produces dependency graphs.
 
-Usage:
+### Usage:
 ```
 from generate_plan import generate_plan
 
@@ -37,8 +37,10 @@ For instance, consider A-B-C, B-D   Where A and C are bound.   We first walk the
 to BD until ABC is complete.  To know what we need to wait for, we may need to query for the join event's parents, 
 which can be done with `QueryPlan.get_prevs(x)`
 
-Example:
+### Example:
+
 Consider a TRAPI query that looks like:
+
 ![Query](Query.png)
 
 where the grey nodes are bound.  A test case for this query is found in `tests.test_plans.test_readme`.
