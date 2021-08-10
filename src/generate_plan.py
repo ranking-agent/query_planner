@@ -159,15 +159,19 @@ def process_path(graph,path,dep_graph,traversed_subgraph):
     filtered, and is also a key in the dep graph that the next path should use as its dependency
     """
     #First thing we need to do is to zing along the path until we get to a a part that we haven't previously traversed
-    i = 0
-    while graph.get_edge_data(path[i], path[i+1])['edge_id'] in traversed_subgraph['edges']:
-        i += 1
-    path = path[i:]
-    i = -1
-    while graph.get_edge_data(path[i], path[i-1])['edge_id'] in traversed_subgraph['edges']:
-        i -= 1
-    if i < -1:
-        path = path[:i+1]
+    try:
+        i = 0
+        while graph.get_edge_data(path[i], path[i+1])['edge_id'] in traversed_subgraph['edges']:
+            i += 1
+        path = path[i:]
+        i = -1
+        while graph.get_edge_data(path[i], path[i-1])['edge_id'] in traversed_subgraph['edges']:
+            i -= 1
+        if i < -1:
+            path = path[:i+1]
+    except IndexError:
+        #It sometimes happens that we want to traverse a path, but we've already got all those edges
+        return
     #Now we have an actual path to traverse
     last = freeze_subgraph(traversed_subgraph)
     #update traversed subgraph for next time before we start whacking on path

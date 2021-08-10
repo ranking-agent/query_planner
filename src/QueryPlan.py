@@ -28,6 +28,11 @@ class QueryPlan:
             return []
         else:
             return TerminalEvent(f'{x} has no next')
+    def get_prev(self, x):
+        if x in self.prevs:
+            return self.prevs[x]
+        else:
+            return (frozenset(),frozenset())
     def add_component_plan(self,x):
         pass
     def add_hairs(self,hair_graph):

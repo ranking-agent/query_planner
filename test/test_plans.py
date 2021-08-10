@@ -87,7 +87,7 @@ def test_hairy_loop():
     plans = generate_plan(trapi)
     assert len(plans) == 1
     plan = plans[0]
-    assert plan.start() == ['AB', 'BC']
+    assert set(plan.start()) == set(['AB', 'BC'])
     # Note that a priori you don't know whether BC will be a dep of AB or CD, but this is the convention
     assert plan.get_next('AB') == ['DA']
     assert plan.get_next('BC') == ['CD']
@@ -116,11 +116,41 @@ def test_double_loop():
     plan = plans[0]
     assert set(plan.start()) == set(['AB','DA'])
     #Do the smallest loop first
+    # One of AB, DA will have 'BD' as a child, while the other will have the join
     assert plan.get_next('DA') == ['BD']
+    next_plans = set(plan.get_next('DA') + plan.get_next('AB'))
     join = (frozenset(['A','B','D']), frozenset(['AB','BD','DA']))
-    assert plan.get_next('AB') == plan.get_next('BD') == [join]
+    assert next_plans ==set([join,'BD'])
+    assert plan.get_next('BD') == [join]
     assert set(plan.get_next(join)) == set(['BC','CD'])
     join2 = (frozenset(['A','B','D','C']), frozenset(['AB','BD','DA','BC','CD']))
     assert plan.get_next('CD') == [join2]
     assert plan.get_next('BC') == [join2]
+
+def test_readme():
+    """Planning the query shown in README.md"""
+    trapi = construct_trapi({'A': True, 'B': True, 'C': False, 'D': False, 'E':False, 'F': False,
+                             'G': False, 'H': False, 'I':True},
+                            {'AB': ('A', 'B'), 'BC': ('B', 'C'), 'AC': ('A', 'C'), 'CD': ('C', 'D'),
+                             'DE': ('D','E'), 'DF': ('D','F'), 'EF': ('E','F'), 'FG': ('F', 'G'),
+                             'GH': ('G','H'), 'GI':('G','I')})
+    plans = generate_plan(trapi)
+    assert len(plans) == 2
+    plan = plans[0]
+    assert plan.start() == ['AB']
+    planb = plans[1]
+    assert set(planb.start()) == set(['AC','BC'])
+    join1 = ( frozenset(['A','B','C']), frozenset(['AC','BC']))
+    assert planb.get_next('AC') == planb.get_next('BC') == [join1]
+    assert set(planb.get_prev(join1)) == set( [ 'AC', 'BC'])
+    assert set(planb.get_next(join1)) == set(['CD','GI'])
+    assert planb.get_next('CD') == ['DF']
+    assert planb.get_next('GI') == ['FG']
+    join2 = ( frozenset(['A','B','C','D','F','G','I']), frozenset(['AC','BC','CD','DF','FG','GI']))
+    assert planb.get_next('DF') == planb.get_next('FG') == [join2]
+    assert set(planb.get_next(join2)) == set(['DE','EF'])
+    join3 = ( frozenset(['A','B','C','D','E','F','G','I']), frozenset(['AC','BC','CD','DF','FG','GI','DE','EF']))
+    assert planb.get_next('DE') == planb.get_next('EF') == [join3]
+    assert planb.get_next(join3) == ['GH']
+    assert isinstance(planb.get_next('GH')[0], TerminalEvent)
 
