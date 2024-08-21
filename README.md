@@ -1,3 +1,5 @@
+# ARCHIVED: This repo is old and outdated, and has been incorporated into the Strider repo.
+
 # query_planner
 A quick-and-dirty library to create query plans for TRAPI queries.
 
